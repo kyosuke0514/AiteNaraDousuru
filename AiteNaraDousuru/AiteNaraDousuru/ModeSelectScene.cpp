@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "ModeSelectScene.hpp"
+#include "Common.hpp"
 
 ModeSelectScene::ModeSelectScene(const InitData& init)
 	: IScene{ init }
@@ -22,6 +23,6 @@ void ModeSelectScene::update()
 
 void ModeSelectScene::draw() const
 {
-	Font{ 36 }(U"モード選択")
+	Common::GetFont()(U"モード選択")
 		.drawAt(Scene::Center().x, 180, Palette::Black);
 }

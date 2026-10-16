@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
 #include "TitleScene.hpp"
+#include "Common.hpp"
 
-TitleScene::TitleScene(const InitData& init)
-	: IScene{ init }
+TitleScene::TitleScene(const InitData& init) : IScene{ init }
 {
 }
 
@@ -16,6 +16,6 @@ void TitleScene::update()
 
 void TitleScene::draw() const
 {
-	Font{ 40 }(U"相手ならどうする？")
+	Common::GetFont()(U"相手ならどうする？")
 		.drawAt(Scene::Center().x, 180, Palette::Black);
 }

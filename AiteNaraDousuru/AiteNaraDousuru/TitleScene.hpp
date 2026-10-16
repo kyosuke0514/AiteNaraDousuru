@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include <Siv3D.hpp>
-
-using App = SceneManager<String>;
+#include "Common.hpp"
 
 class TitleScene : public App::Scene
 {
 public:
-	TitleScene(const InitData& init) : IScene{ init } {}
+	TitleScene(const InitData& init);
 	void update() override;
 	void draw() const override;
+
+private:
+	
 };
