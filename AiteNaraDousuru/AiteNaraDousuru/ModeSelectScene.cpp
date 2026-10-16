@@ -9,15 +9,21 @@ ModeSelectScene::ModeSelectScene(const InitData& init)
 
 void ModeSelectScene::update()
 {
-	if (SimpleGUI::Button(U"通常モード", Vec2{ 300, 280 }, 200))
+	const double centerX = Scene::Center().x;
+
+	const double minOffset = -CardSpacing * (m_topics.size() - 1);
+
+	//マウスを押した瞬間
+	if (MouseL.down())
 	{
-		changeScene(U"HowToPlay");
+		m_isDragging = true;
+		m_prevMouseX = Cursor::PosF().x;
+		m_velocity = 0.0;
 	}
 
-	if (SimpleGUI::Button(U"タイトルへ戻る", Vec2{ 300, 340 }, 200))
-	{
-		changeScene(U"Title");
-	}
+	//ドラッグ中
+	if
+
 
 }
 
