@@ -11,5 +11,11 @@ public:
 		static const Font font{ 40 };
 		return font;
 	}
+
+	static const Font& GetMainFont()
+	{
+		static const Font font{ 30 };
+		return font;
+	}
 };
 
