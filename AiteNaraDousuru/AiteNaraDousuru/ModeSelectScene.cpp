@@ -22,9 +22,54 @@ void ModeSelectScene::update()
 	}
 
 	//ドラッグ中
-	if
+	if (m_isDragging && MouseL.pressed())
+	{
+		const double mouseX = Cursor::PosF().x;
+		const double deltaX = mouseX - m_prevMouseX;
 
+		m_offset += deltaX;
+		m_velocity += deltaX;
 
+		m_prevMouseX = mouseX;
+
+		m_offset = Clamp(m_offset, minOffset, 0.0);
+	}
+
+	if (MouseL.up())
+	{
+		m_isDragging = false;
+	}
+
+	if (!m_isDragging)
+	{
+		m_offset += m_velocity;
+		m_velocity *= 0.90;
+
+		if (m_offset > 0.0)
+		{
+			m_offset = 0.0;
+			m_velocity = 0.0;
+		}
+
+		if (m_offset < minOffset)
+		{
+			m_offset = minOffset;
+			m_velocity = 0.0;
+		}
+	}
+
+	m_selectedIndex = Clamp(static_cast<int>(Math::Round(-m_offset / CardSpacing)), 0, static_cast<int>(m_topics.size()) - 1);
+
+	if (!m_isDragging && SimpleGUI::Button(U"このお題に決める", Vec2{ centerX - 100,510 }, 200))
+	{
+		getData().selectedTopic = m_topics[m_selectedIndex];
+		changeScene(U"HowToPlay", 0.4s);
+	}
+
+	if (!m_isDragging && SimpleGUI::Button(U"タイトルに戻る", Vec2{ 20,20 }, 160))
+	{
+		changeScene(U"Title");
+	}
 }
 
 void ModeSelectScene::draw() const

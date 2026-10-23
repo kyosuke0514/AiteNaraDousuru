@@ -1,7 +1,12 @@
 ﻿#pragma once
 #include <Siv3D.hpp>
 
-using App = SceneManager<String>;
+struct GameData
+{
+	String selectedTopic;
+};
+
+using App = SceneManager<String,GameData>;
 
 class Common
 {

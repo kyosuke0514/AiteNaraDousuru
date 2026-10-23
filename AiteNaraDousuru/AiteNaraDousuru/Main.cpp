@@ -5,7 +5,7 @@
 #include "GameScene.hpp"
 #include "RevealScene.hpp"
 #include "ResultScene.hpp"
-using App = SceneManager<String>;
+
 
 void Main()
 {
