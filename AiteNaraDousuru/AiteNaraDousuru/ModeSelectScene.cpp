@@ -5,6 +5,7 @@
 ModeSelectScene::ModeSelectScene(const InitData& init)
 	: IScene{ init }
 {
+	Scene::SetBackground(ColorF{ 0.94, 0.96, 0.99 });
 }
 
 void ModeSelectScene::update()
@@ -14,7 +15,8 @@ void ModeSelectScene::update()
 	const double minOffset = -CardSpacing * (m_topics.size() - 1);
 
 	//マウスを押した瞬間
-	if (MouseL.down())
+	const double mouseY = Cursor::PosF().y;
+	if (MouseL.down()&& (CardAreaTop <= mouseY)&&(mouseY <= CardAreaBottom))
 	{
 		m_isDragging = true;
 		m_prevMouseX = Cursor::PosF().x;
@@ -28,7 +30,7 @@ void ModeSelectScene::update()
 		const double deltaX = mouseX - m_prevMouseX;
 
 		m_offset += deltaX;
-		m_velocity += deltaX;
+		m_velocity = deltaX;
 
 		m_prevMouseX = mouseX;
 
@@ -40,7 +42,7 @@ void ModeSelectScene::update()
 		m_isDragging = false;
 	}
 
-	if (!m_isDragging)
+	if (not m_isDragging)
 	{
 		m_offset += m_velocity;
 		m_velocity *= 0.90;
@@ -60,13 +62,21 @@ void ModeSelectScene::update()
 
 	m_selectedIndex = Clamp(static_cast<int>(Math::Round(-m_offset / CardSpacing)), 0, static_cast<int>(m_topics.size()) - 1);
 
-	if (!m_isDragging && SimpleGUI::Button(U"このお題に決める", Vec2{ centerX - 100,510 }, 200))
+	// 勢いがなくなったら、一番近いカードが中央に来るように吸い寄せる
+	if ((not m_isDragging) && (Abs(m_velocity) < 1.0))
+	{
+		m_velocity = 0.0;
+		const double target = -m_selectedIndex * CardSpacing;
+		m_offset = Math::Lerp(m_offset, target, 0.2);
+	}
+
+	if ((not m_isDragging) && SimpleGUI::Button(U"このお題に決める", Vec2{ centerX - 100, 510 }, 200))
 	{
 		getData().selectedTopic = m_topics[m_selectedIndex];
 		changeScene(U"HowToPlay", 0.4s);
 	}
 
-	if (!m_isDragging && SimpleGUI::Button(U"タイトルに戻る", Vec2{ 20,20 }, 160))
+	if ((not m_isDragging) && SimpleGUI::Button(U"タイトルに戻る", Vec2{ 20, 20 }, 160))
 	{
 		changeScene(U"Title");
 	}
@@ -76,7 +86,9 @@ void ModeSelectScene::draw() const
 {
 	const double centerX = Scene::Center().x;
 
-	Scene::SetBackground(ColorF{ 0.94,0.96,0.99 });
+	//何問目か
+	Common::GetMainFont()(U"第{}問 / 全{}問"_fmt(getData().round, MaxRounds))
+		.drawAt(centerX, 110, Common::TextColor);
 
 	for (int i = 0; i < static_cast<int>(m_topics.size()); ++i)
 	{
@@ -94,47 +106,32 @@ void ModeSelectScene::draw() const
 
 		const double y = 280.0;
 
-		const RectF card
-		{
-			x - cardWidth / 2,
-			y - cardHeight / 2,
-			cardWidth,
-			cardHeight
-		};
+		const RoundRect card{ x - cardWidth / 2, y - cardHeight / 2, cardWidth, cardHeight, 18 };
 
 		if (isSelected)
 		{
-			RoundRect
-			{
-				card.x,card.y,card.w,card.h,18
-			}.draw(ColorF{ 0.25,0.55,0.95 });
-
-			RoundRect
-			{
-				card.x,card.y,card.w,card.h,18
-			}.drawFrame(4, ColorF{ 0.10,0.35,0.80 });
+			card.draw(ColorF{ 0.25, 0.55, 0.95 });
+			card.drawFrame(4, ColorF{ 0.10, 0.35, 0.80 });
 		}
 		else
 		{
-			RoundRect
-			{
-				card.x,card.y,card.w,card.h	,18
-			}.draw(ColorF{ 1.0 });
-			RoundRect
-			{
-				card.x,card.y,card.w,card.h,18
-			}.drawFrame(2, ColorF{ 0.80, 0.83, 0.88 });
+			card.draw(ColorF{ 1.0 });
+			card.drawFrame(2, ColorF{ 0.80, 0.83, 0.88 });
 		}
+
+		//お題名をカードに表示
+		Common::GetSmallFont()(m_topics[i])
+			.drawAt(x, y - 10, isSelected ? ColorF{ 1.0 } : Common::TextColor);
 
 		//選択中の表示
 		if (isSelected)
 		{
 			Common::GetMainFont()(U"SELECTED")
-			.drawAt(x, card.y + card.h - 25,ColorF{ 1.0, 0.9, 0.6 });
+				.drawAt(x, card.y + card.h - 25, ColorF{ 1.0, 0.9, 0.6 });
 		}
 	}
 
 	//選択中のお題
 	Common::GetMainFont()(U"選択中：" + m_topics[m_selectedIndex])
-	.drawAt(centerX, 430,ColorF{ 0.12, 0.16, 0.25 });
+	.drawAt(centerX, 430, Common::TextColor);
 }
